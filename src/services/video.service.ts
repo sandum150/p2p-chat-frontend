@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable} from "rxjs";
+import {from, map, Observable, of, switchMap} from "rxjs";
 
 @Injectable({
     providedIn: 'root'
@@ -34,37 +34,46 @@ export class VideoService {
         })
     }
 
-    getPeerConnection(): Observable<RTCPeerConnection> {
-        return new Observable<RTCPeerConnection>(observer => {
-            observer.next(new RTCPeerConnection(this.servers));
-        })
+    createConnection(): Observable<RTCPeerConnection> {
+        return of(new RTCPeerConnection(this.servers));
     }
 
-    getOffer(connection: RTCPeerConnection, options?: RTCOfferOptions): Observable<any> {
-        return new Observable(observer => {
-            connection.createOffer(options)
-                .then((offer) => {
-                        connection.setLocalDescription(offer).then(res => {
-                            observer.next(offer);
-                        })
-                    }
-                )
-                .catch((error) => {
-                    observer.error(error)
-                })
-        })
+    createOffer(connection: RTCPeerConnection, options?: RTCOfferOptions): Observable<RTCSessionDescriptionInit> {
+        return from(connection.createOffer(options))
+            // .pipe(
+            //     switchMap(offer => {
+            //         return this.setLocalDescription(connection, offer);
+            //     })
+            // )
+
+        // return new Observable(observer => {
+        //     connection.createOffer(options)
+        //         .then((offer) => {
+        //                 connection.setLocalDescription(offer).then(res => {
+        //                     console.log('iiiiiiiiiii', connection);
+        //                     observer.next(offer);
+        //                 })
+        //             }
+        //         )
+        //         .catch((error) => {
+        //             observer.error(error)
+        //         })
+        // })
     }
 
-    setLocalDescription(connection: RTCPeerConnection, offer: RTCSessionDescriptionInit) {
-        return new Observable(observer => {
+    setLocalDescription(connection: RTCPeerConnection, offer: RTCSessionDescriptionInit): Observable<RTCSessionDescriptionInit> {
+        return new Observable<RTCSessionDescriptionInit>(observer => {
             connection.setLocalDescription(offer)
-                .then(res => {
-                    console.log('local descr', res);
-                    observer.next(res);
+                .then(() => {
+                    observer.next(offer);
                 })
                 .catch(err => {
-                    observer.error(err);
+                    observer.error(err)
                 })
         })
+    }
+
+    setRemoteDescription(connection: RTCPeerConnection, offer: RTCSessionDescriptionInit): Observable<void> {
+        return from(connection.setRemoteDescription(offer))
     }
 }

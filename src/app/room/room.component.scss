@@ -1,0 +1,14 @@
+.chat-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+
+  .videos {
+    display: flex;
+    justify-content: space-between;
+
+    .video {
+      border: solid 1px #eee;
+      width: calc(50% - 20px);
+    }
+  }
+}

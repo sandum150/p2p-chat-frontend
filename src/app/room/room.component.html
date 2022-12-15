@@ -1,0 +1,8 @@
+<div class="chat-wrapper">
+    <div class="videos">
+        <video class="video" id="video-local" autoplay playsinline></video>
+        <video class="video" id="video-remote" autoplay playsinline></video>
+    </div>
+    <button (click)="getInvitationLink()">Get link</button>
+    <input type="text" [ngModel]="connectionUrl">
+</div>
